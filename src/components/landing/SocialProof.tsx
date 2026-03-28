@@ -1,5 +1,7 @@
 import { motion } from "framer-motion";
 import { Star } from "lucide-react";
+import { useCountUp } from "@/hooks/useCountUp";
+import React from "react";
 
 const testimonials = [
   { name: "Dr. Marcos Oliveira", role: "Advogado Tributarista", text: "Desde que migrei para o Ellite, meus clientes passaram a me ver com outros olhos. A estrutura transmite credibilidade instantânea." },
@@ -10,10 +12,10 @@ const testimonials = [
 ];
 
 const kpis = [
-  { value: "200+", label: "Profissionais Atendidos" },
-  { value: "3", label: "Salas Premium" },
-  { value: "98%", label: "Taxa de Satisfação" },
-  { value: "150%", label: "Ganho em Produtividade" },
+  { value: 200, suffix: "+", label: "Profissionais Atendidos" },
+  { value: 3, suffix: "", label: "Salas Premium" },
+  { value: 98, suffix: "%", label: "Taxa de Satisfação" },
+  { value: 150, suffix: "%", label: "Ganho em Produtividade" },
 ];
 
 const fadeUp = {
@@ -23,9 +25,28 @@ const fadeUp = {
   transition: { duration: 0.6 },
 };
 
+const KpiCard = ({ kpi, delay }: { kpi: typeof kpis[0]; delay: number }) => {
+  const { count, ref } = useCountUp(kpi.value, 2000);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.5, delay }}
+      className="text-center glass-card rounded-2xl p-6"
+    >
+      <p className="text-gradient-gold font-serif text-4xl md:text-5xl font-bold" ref={ref as React.Ref<HTMLParagraphElement>}>
+        {count}{kpi.suffix}
+      </p>
+      <p className="text-muted-foreground text-sm mt-2">{kpi.label}</p>
+    </motion.div>
+  );
+};
+
 const SocialProof = () => {
   return (
-    <section className="py-20 overflow-hidden">
+    <section id="depoimentos" className="py-20 overflow-hidden">
       <div className="container mx-auto px-4 mb-16">
         <motion.h2 {...fadeUp} className="font-serif text-3xl md:text-5xl font-bold text-center mb-4">
           Quem <span className="text-gradient-gold">Confia</span> em Nós
@@ -61,17 +82,7 @@ const SocialProof = () => {
       <div className="container mx-auto px-4 mt-16">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {kpis.map((kpi, i) => (
-            <motion.div
-              key={kpi.label}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: i * 0.1 }}
-              className="text-center glass-card rounded-2xl p-6"
-            >
-              <p className="text-gradient-gold font-serif text-4xl md:text-5xl font-bold">{kpi.value}</p>
-              <p className="text-muted-foreground text-sm mt-2">{kpi.label}</p>
-            </motion.div>
+            <KpiCard key={kpi.label} kpi={kpi} delay={i * 0.1} />
           ))}
         </div>
       </div>

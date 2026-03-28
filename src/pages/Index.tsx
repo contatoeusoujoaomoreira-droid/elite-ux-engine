@@ -1,3 +1,4 @@
+import Navbar from "@/components/landing/Navbar";
 import HeroSection from "@/components/landing/HeroSection";
 import SocialProof from "@/components/landing/SocialProof";
 import ForWhoSection from "@/components/landing/ForWhoSection";
@@ -16,7 +17,10 @@ const Index = () => {
 
   return (
     <main className="bg-background min-h-screen overflow-x-hidden">
-      <HeroSection />
+      <Navbar />
+      <div id="inicio">
+        <HeroSection />
+      </div>
       <SocialProof />
       <ForWhoSection />
       <GallerySection />
@@ -24,7 +28,9 @@ const Index = () => {
       <CalculatorSection />
       <PlansSection onPlanClick={handlePlanClick} />
       <FAQSection />
-      <FooterSection />
+      <div id="contato">
+        <FooterSection />
+      </div>
     </main>
   );
 };

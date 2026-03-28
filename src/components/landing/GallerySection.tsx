@@ -10,7 +10,7 @@ const images = [tour1, tour2, tour3, tour4, tour5, tour6];
 
 const GallerySection = () => {
   return (
-    <section className="py-20">
+    <section id="galeria" className="py-20">
       <div className="container mx-auto px-4">
         <motion.h2
           initial={{ opacity: 0, y: 30 }}
