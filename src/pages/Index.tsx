@@ -8,11 +8,13 @@ import CalculatorSection from "@/components/landing/CalculatorSection";
 import PlansSection from "@/components/landing/PlansSection";
 import FAQSection from "@/components/landing/FAQSection";
 import FooterSection from "@/components/landing/FooterSection";
+import { useTracker, trackPlanClick } from "@/hooks/useTracker";
 
 const Index = () => {
+  useTracker();
+
   const handlePlanClick = (planName: string) => {
-    console.log(`Plan clicked: ${planName}`);
-    // Tracking will be added when Supabase is connected
+    trackPlanClick(planName);
   };
 
   return (
