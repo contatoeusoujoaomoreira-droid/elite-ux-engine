@@ -12,7 +12,7 @@ const faqs = [
 
 const FAQSection = () => {
   return (
-    <section className="py-20">
+    <section id="faq" className="py-20">
       <div className="container mx-auto px-4 max-w-2xl">
         <motion.h2
           initial={{ opacity: 0, y: 30 }}

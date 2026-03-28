@@ -12,7 +12,7 @@ const items = [
 
 const DifferentialsSection = () => {
   return (
-    <section className="py-20">
+    <section id="diferenciais" className="py-20">
       <div className="container mx-auto px-4">
         <motion.h2
           initial={{ opacity: 0, y: 30 }}

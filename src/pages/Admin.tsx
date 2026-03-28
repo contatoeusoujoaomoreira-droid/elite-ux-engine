@@ -11,7 +11,7 @@ const AdminPage = () => {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === "ellite2024") {
+    if (password === "123456") {
       setIsAuthenticated(true);
     }
   };
