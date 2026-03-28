@@ -4,27 +4,44 @@ import { Check, Crown } from "lucide-react";
 const plans = [
   {
     name: "Hora",
-    price: "R$ 25",
+    price: "R$ 40",
     period: "/hora",
-    features: ["Sala privativa", "Wi-Fi ultra rápido", "Ar condicionado", "Café incluso"],
+    subtitle: null,
+    features: [
+      "1 estação de trabalho",
+      "Internet rápida",
+      "Café e água free",
+    ],
     popular: false,
-    whatsapp: "Olá! Tenho interesse no plano POR HORA do Ellite Coworking. Gostaria de mais informações.",
+    href: "https://wa.me/5511976790653?text=Ol%C3%A1!%20Gostaria%20de%20garantir%20meu%20plano%20por%20Hora%20(R$%2040)%20no%20Ellite%20Coworking.",
   },
   {
     name: "Diária",
-    price: "R$ 89",
+    price: "R$ 200",
     period: "/dia",
-    features: ["Sala privativa o dia todo", "Wi-Fi ultra rápido", "Ar condicionado", "Café e água", "Endereço comercial"],
+    subtitle: null,
+    features: [
+      "2 estações de trabalho",
+      "Internet rápida",
+      "Café e água free",
+    ],
     popular: true,
-    whatsapp: "Olá! Tenho interesse no plano DIÁRIA do Ellite Coworking. Gostaria de mais informações.",
+    href: "https://wa.me/5511976790653?text=Ol%C3%A1!%20Gostaria%20de%20garantir%20meu%20plano%20Di%C3%A1ria%20(R$%20200)%20no%20Ellite%20Coworking.",
   },
   {
     name: "Mensal",
-    price: "R$ 1.200",
-    period: "/mês",
-    features: ["Sala privativa exclusiva", "Wi-Fi ultra rápido", "Ar condicionado", "Café e água", "Endereço comercial", "Chave própria 24h"],
+    price: "R$ 130",
+    period: "/dia",
+    subtitle: "mín. 10 diárias",
+    features: [
+      "3 estações de trabalho",
+      "2 diárias na sala de reunião (4 pessoas)",
+      "Internet rápida",
+      "Café e água free",
+      "Frigobar exclusivo",
+    ],
     popular: false,
-    whatsapp: "Olá! Tenho interesse no plano MENSAL do Ellite Coworking. Gostaria de mais informações.",
+    href: "https://wa.me/5511976790653?text=Ol%C3%A1!%20Gostaria%20de%20garantir%20meu%20plano%20Mensal%20(R$%20130/dia)%20no%20Ellite%20Coworking.",
   },
 ];
 
@@ -35,8 +52,7 @@ interface PlansSectionProps {
 const PlansSection = ({ onPlanClick }: PlansSectionProps) => {
   const handleClick = (plan: typeof plans[0]) => {
     onPlanClick?.(plan.name);
-    const msg = encodeURIComponent(plan.whatsapp);
-    window.open(`https://wa.me/5511976790653?text=${msg}`, "_blank");
+    window.open(plan.href, "_blank", "noopener,noreferrer");
   };
 
   return (
@@ -72,7 +88,7 @@ const PlansSection = ({ onPlanClick }: PlansSectionProps) => {
               }`}
             >
               {plan.popular && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5 bg-primary text-primary-foreground text-xs font-bold px-4 py-1.5 rounded-full">
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5 bg-primary text-primary-foreground text-xs font-bold px-4 py-1.5 rounded-full uppercase tracking-wider">
                   <Crown className="w-3.5 h-3.5" /> Mais Popular
                 </div>
               )}
@@ -81,6 +97,9 @@ const PlansSection = ({ onPlanClick }: PlansSectionProps) => {
               <div className="mb-6">
                 <span className="text-gradient-gold font-serif text-4xl font-bold">{plan.price}</span>
                 <span className="text-muted-foreground text-sm">{plan.period}</span>
+                {plan.subtitle && (
+                  <p className="text-muted-foreground text-xs mt-1 opacity-70">({plan.subtitle})</p>
+                )}
               </div>
 
               <ul className="space-y-3 mb-8 flex-1">
