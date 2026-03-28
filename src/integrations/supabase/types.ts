@@ -14,7 +14,90 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      admin_scripts: {
+        Row: {
+          id: string
+          script_key: string
+          script_value: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          script_key: string
+          script_value?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          script_key?: string
+          script_value?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      pageviews: {
+        Row: {
+          created_at: string
+          id: string
+          page_path: string
+          referrer: string | null
+          session_id: string | null
+          user_agent: string | null
+          utm_campaign: string | null
+          utm_content: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          utm_term: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          page_path?: string
+          referrer?: string | null
+          session_id?: string | null
+          user_agent?: string | null
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          page_path?: string
+          referrer?: string | null
+          session_id?: string | null
+          user_agent?: string | null
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
+        }
+        Relationships: []
+      }
+      plan_clicks: {
+        Row: {
+          created_at: string
+          id: string
+          plan_name: string
+          session_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          plan_name: string
+          session_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          plan_name?: string
+          session_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
