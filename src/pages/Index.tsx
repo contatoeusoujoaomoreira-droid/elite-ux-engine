@@ -1,16 +1,32 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import HeroSection from "@/components/landing/HeroSection";
+import SocialProof from "@/components/landing/SocialProof";
+import ForWhoSection from "@/components/landing/ForWhoSection";
+import GallerySection from "@/components/landing/GallerySection";
+import DifferentialsSection from "@/components/landing/DifferentialsSection";
+import CalculatorSection from "@/components/landing/CalculatorSection";
+import PlansSection from "@/components/landing/PlansSection";
+import FAQSection from "@/components/landing/FAQSection";
+import FooterSection from "@/components/landing/FooterSection";
 
-// IMPORTANT: Fully REPLACE this with your own code
-const PlaceholderIndex = () => {
-  // PLACEHOLDER: Replace this entire return statement with the user's app.
-  // The inline background color is intentionally not part of the design system.
+const Index = () => {
+  const handlePlanClick = (planName: string) => {
+    console.log(`Plan clicked: ${planName}`);
+    // Tracking will be added when Supabase is connected
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: '#fcfbf8' }}>
-      <img data-lovable-blank-page-placeholder="REMOVE_THIS" src="/placeholder.svg" alt="Your app will live here!" />
-    </div>
+    <main className="bg-background min-h-screen overflow-x-hidden">
+      <HeroSection />
+      <SocialProof />
+      <ForWhoSection />
+      <GallerySection />
+      <DifferentialsSection />
+      <CalculatorSection />
+      <PlansSection onPlanClick={handlePlanClick} />
+      <FAQSection />
+      <FooterSection />
+    </main>
   );
 };
-
-const Index = PlaceholderIndex;
 
 export default Index;
