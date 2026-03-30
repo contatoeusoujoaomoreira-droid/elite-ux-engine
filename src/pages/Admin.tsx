@@ -40,6 +40,26 @@ const AdminPage = () => {
   useEffect(() => {
     if (!isAuthenticated) return;
     loadAnalytics();
+
+    // Realtime subscription for instant updates
+    const pageviewSubscription = supabase
+      .channel("pageviews-realtime")
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "pageviews" }, () => {
+        loadAnalytics();
+      })
+      .subscribe();
+
+    const clickSubscription = supabase
+      .channel("clicks-realtime")
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "plan_clicks" }, () => {
+        loadAnalytics();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(pageviewSubscription);
+      supabase.removeChannel(clickSubscription);
+    };
   }, [isAuthenticated, startDate, endDate]);
 
   const loadAnalytics = async () => {
@@ -92,11 +112,10 @@ const AdminPage = () => {
     // Traffic data
     const { data: traffic } = await supabase
       .from("pageviews")
-      .select("utm_source, utm_campaign, referrer")
+      .select("utm_source, utm_campaign, referrer, page_path")
       .gte("created_at", startISO)
       .lte("created_at", endISO)
-      .not("utm_source", "is", null)
-      .limit(50);
+      .limit(100);
     setTrafficData(traffic || []);
   };
 
@@ -143,7 +162,7 @@ const AdminPage = () => {
         <DateRangeFilter onRangeChange={handleDateRangeChange} />
 
         <EventTrackingStatus />
-        <AnalyticsOverview totalPageviews={totalPageviews} uniqueVisitors={uniqueVisitors} conversionRate={conversionRate} />
+        <AnalyticsOverview totalPageviews={totalPageviews} uniqueVisitors={uniqueVisitors} conversionRate={conversionRate} trafficData={trafficData} />
         <PageviewsChart dailyPageviews={dailyPageviews} />
         <TrafficTable trafficData={trafficData} />
         <ClickHeatmap planClicks={planClicks} />
