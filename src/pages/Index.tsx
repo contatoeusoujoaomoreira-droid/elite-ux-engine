@@ -9,9 +9,11 @@ import PlansSection from "@/components/landing/PlansSection";
 import FAQSection from "@/components/landing/FAQSection";
 import FooterSection from "@/components/landing/FooterSection";
 import { useTracker, trackPlanClick } from "@/hooks/useTracker";
+import { useScriptInjector } from "@/hooks/useScriptInjector";
 
 const Index = () => {
   useTracker();
+  useScriptInjector();
 
   const handlePlanClick = (planName: string) => {
     trackPlanClick(planName);
