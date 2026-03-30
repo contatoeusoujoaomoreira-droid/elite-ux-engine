@@ -12,13 +12,18 @@ export function useScriptInjector() {
       data.forEach((row) => {
         if (!row.script_value?.trim()) return;
 
+        // Determine injection target
         const isBody = row.script_key === "custom_body";
         const container = isBody ? document.body : document.head;
+
+        // Remove previous injection with same key
+        document.querySelectorAll(`[data-injected="${row.script_key}"]`).forEach(el => el.remove());
+
         const wrapper = document.createElement("div");
         wrapper.setAttribute("data-injected", row.script_key);
         wrapper.innerHTML = row.script_value;
 
-        // Activate script tags by cloning them
+        // Activate script tags by cloning them (innerHTML doesn't execute scripts)
         const scripts = wrapper.querySelectorAll("script");
         scripts.forEach((orig) => {
           const s = document.createElement("script");
