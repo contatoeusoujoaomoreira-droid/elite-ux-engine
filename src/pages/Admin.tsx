@@ -7,10 +7,17 @@ import PageviewsChart from "@/components/admin/PageviewsChart";
 import TrafficTable from "@/components/admin/TrafficTable";
 import ClickHeatmap from "@/components/admin/ClickHeatmap";
 import PixelManager from "@/components/admin/PixelManager";
+import DateRangeFilter, { DateRangeType } from "@/components/admin/DateRangeFilter";
+import UserManagement from "@/components/admin/UserManagement";
+import AnalyticsOverview from "@/components/admin/AnalyticsOverview";
+import EventTrackingStatus from "@/components/admin/EventTrackingStatus";
 
 const AdminPage = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [dateRangeType, setDateRangeType] = useState<DateRangeType>("month");
+  const [startDate, setStartDate] = useState<Date>(new Date(new Date().setDate(new Date().getDate() - 30)));
+  const [endDate, setEndDate] = useState<Date>(new Date());
 
   const [totalPageviews, setTotalPageviews] = useState(0);
   const [uniqueVisitors, setUniqueVisitors] = useState(0);
@@ -33,16 +40,30 @@ const AdminPage = () => {
   useEffect(() => {
     if (!isAuthenticated) return;
     loadAnalytics();
-  }, [isAuthenticated]);
+  }, [isAuthenticated, startDate, endDate]);
 
   const loadAnalytics = async () => {
-    const { count: pvCount } = await supabase.from("pageviews").select("*", { count: "exact", head: true });
+    const startISO = startDate.toISOString();
+    const endISO = endDate.toISOString();
+
+    // Pageviews count
+    const { count: pvCount } = await supabase
+      .from("pageviews")
+      .select("*", { count: "exact", head: true })
+      .gte("created_at", startISO)
+      .lte("created_at", endISO);
     setTotalPageviews(pvCount || 0);
 
-    const { data: pvData } = await supabase.from("pageviews").select("session_id, created_at");
+    // Unique visitors
+    const { data: pvData } = await supabase
+      .from("pageviews")
+      .select("session_id, created_at")
+      .gte("created_at", startISO)
+      .lte("created_at", endISO);
     const unique = new Set(pvData?.map(r => r.session_id).filter(Boolean));
     setUniqueVisitors(unique.size);
 
+    // Daily pageviews
     const dailyMap: Record<string, number> = {};
     pvData?.forEach(r => {
       const day = r.created_at.substring(0, 10);
@@ -50,11 +71,15 @@ const AdminPage = () => {
     });
     const sorted = Object.entries(dailyMap)
       .sort(([a], [b]) => a.localeCompare(b))
-      .slice(-30)
       .map(([date, views]) => ({ date, views }));
     setDailyPageviews(sorted);
 
-    const { data: clicks } = await supabase.from("plan_clicks").select("plan_name");
+    // Plan clicks
+    const { data: clicks } = await supabase
+      .from("plan_clicks")
+      .select("plan_name")
+      .gte("created_at", startISO)
+      .lte("created_at", endISO);
     const clickMap: Record<string, number> = {};
     let total = 0;
     clicks?.forEach(c => {
@@ -64,9 +89,12 @@ const AdminPage = () => {
     setPlanClicks(clickMap);
     setTotalPlanClicks(total);
 
+    // Traffic data
     const { data: traffic } = await supabase
       .from("pageviews")
       .select("utm_source, utm_campaign, referrer")
+      .gte("created_at", startISO)
+      .lte("created_at", endISO)
       .not("utm_source", "is", null)
       .limit(50);
     setTrafficData(traffic || []);
@@ -91,6 +119,12 @@ const AdminPage = () => {
 
   const conversionRate = totalPageviews > 0 ? ((totalPlanClicks / totalPageviews) * 100).toFixed(1) : "0";
 
+  const handleDateRangeChange = (type: DateRangeType, start: Date, end: Date) => {
+    setDateRangeType(type);
+    setStartDate(start);
+    setEndDate(end);
+  };
+
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
       <div className="max-w-6xl mx-auto">
@@ -106,10 +140,14 @@ const AdminPage = () => {
           </div>
         </div>
 
-        <KPICards totalPageviews={totalPageviews} uniqueVisitors={uniqueVisitors} conversionRate={conversionRate} />
+        <DateRangeFilter onRangeChange={handleDateRangeChange} />
+
+        <EventTrackingStatus />
+        <AnalyticsOverview totalPageviews={totalPageviews} uniqueVisitors={uniqueVisitors} conversionRate={conversionRate} />
         <PageviewsChart dailyPageviews={dailyPageviews} />
         <TrafficTable trafficData={trafficData} />
         <ClickHeatmap planClicks={planClicks} />
+        <UserManagement />
         <PixelManager />
       </div>
     </div>
