@@ -1,6 +1,12 @@
-import { useState, useEffect } from "react";
-import { Lock, BarChart3, Eye, MousePointerClick, Globe, Code, Save, LogOut } from "lucide-react";
+import { useState, useEffect, useMemo } from "react";
+import { Lock, BarChart3, Eye, MousePointerClick, Globe, Code, Save, LogOut, TrendingUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid } from "recharts";
 
 const AdminPage = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -9,21 +15,19 @@ const AdminPage = () => {
   const [loginError, setLoginError] = useState("");
   const [loading, setLoading] = useState(true);
 
-  // Scripts state
   const [metaPixel, setMetaPixel] = useState("");
   const [gtmScript, setGtmScript] = useState("");
   const [customHead, setCustomHead] = useState("");
   const [customBody, setCustomBody] = useState("");
   const [saving, setSaving] = useState(false);
 
-  // Analytics state
   const [totalPageviews, setTotalPageviews] = useState(0);
   const [uniqueVisitors, setUniqueVisitors] = useState(0);
   const [planClicks, setPlanClicks] = useState<Record<string, number>>({});
   const [trafficData, setTrafficData] = useState<any[]>([]);
   const [totalPlanClicks, setTotalPlanClicks] = useState(0);
+  const [dailyPageviews, setDailyPageviews] = useState<{ date: string; views: number }[]>([]);
 
-  // Check session on mount
   useEffect(() => {
     supabase.auth.onAuthStateChange((_event, session) => {
       setIsAuthenticated(!!session);
@@ -35,7 +39,6 @@ const AdminPage = () => {
     });
   }, []);
 
-  // Load data when authenticated
   useEffect(() => {
     if (!isAuthenticated) return;
     loadAnalytics();
@@ -43,16 +46,25 @@ const AdminPage = () => {
   }, [isAuthenticated]);
 
   const loadAnalytics = async () => {
-    // Total pageviews
     const { count: pvCount } = await supabase.from("pageviews").select("*", { count: "exact", head: true });
     setTotalPageviews(pvCount || 0);
 
-    // Unique visitors
-    const { data: pvData } = await supabase.from("pageviews").select("session_id");
+    const { data: pvData } = await supabase.from("pageviews").select("session_id, created_at");
     const unique = new Set(pvData?.map(r => r.session_id).filter(Boolean));
     setUniqueVisitors(unique.size);
 
-    // Plan clicks
+    // Daily pageviews aggregation
+    const dailyMap: Record<string, number> = {};
+    pvData?.forEach(r => {
+      const day = r.created_at.substring(0, 10);
+      dailyMap[day] = (dailyMap[day] || 0) + 1;
+    });
+    const sorted = Object.entries(dailyMap)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .slice(-30)
+      .map(([date, views]) => ({ date, views }));
+    setDailyPageviews(sorted);
+
     const { data: clicks } = await supabase.from("plan_clicks").select("plan_name");
     const clickMap: Record<string, number> = {};
     let total = 0;
@@ -63,7 +75,6 @@ const AdminPage = () => {
     setPlanClicks(clickMap);
     setTotalPlanClicks(total);
 
-    // Traffic data (UTMs)
     const { data: traffic } = await supabase
       .from("pageviews")
       .select("utm_source, utm_campaign, referrer")
@@ -109,6 +120,10 @@ const AdminPage = () => {
     }
     setSaving(false);
   };
+
+  const chartConfig = useMemo(() => ({
+    views: { label: "Pageviews", color: "hsl(43 96% 56%)" },
+  }), []);
 
   if (loading) {
     return (
@@ -195,6 +210,53 @@ const AdminPage = () => {
           ))}
         </div>
 
+        {/* Pageviews Chart */}
+        <div className="glass-card rounded-2xl p-6 mb-8">
+          <div className="flex items-center gap-2 mb-4">
+            <TrendingUp className="w-5 h-5 text-primary" />
+            <h2 className="font-serif text-lg font-bold text-foreground">Pageviews por Dia</h2>
+            <span className="text-muted-foreground text-xs ml-auto">Últimos 30 dias</span>
+          </div>
+          {dailyPageviews.length === 0 ? (
+            <p className="text-muted-foreground text-sm text-center py-12">Nenhum dado de pageview ainda</p>
+          ) : (
+            <ChartContainer config={chartConfig} className="h-[280px] w-full">
+              <AreaChart data={dailyPageviews} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="goldGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="hsl(43 96% 56%)" stopOpacity={0.4} />
+                    <stop offset="100%" stopColor="hsl(43 96% 56%)" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(0 0% 14%)" />
+                <XAxis
+                  dataKey="date"
+                  tickFormatter={(v: string) => v.substring(5)}
+                  stroke="hsl(0 0% 55%)"
+                  fontSize={11}
+                  tickLine={false}
+                  axisLine={false}
+                />
+                <YAxis
+                  stroke="hsl(0 0% 55%)"
+                  fontSize={11}
+                  tickLine={false}
+                  axisLine={false}
+                  allowDecimals={false}
+                />
+                <ChartTooltip content={<ChartTooltipContent />} />
+                <Area
+                  type="monotone"
+                  dataKey="views"
+                  stroke="hsl(43 96% 56%)"
+                  strokeWidth={2}
+                  fill="url(#goldGradient)"
+                />
+              </AreaChart>
+            </ChartContainer>
+          )}
+        </div>
+
         {/* Traffic Table */}
         <div className="glass-card rounded-2xl p-6 mb-8">
           <div className="flex items-center gap-2 mb-4">
@@ -260,44 +322,23 @@ const AdminPage = () => {
             <Code className="w-5 h-5 text-primary" />
             <h2 className="font-serif text-lg font-bold text-foreground">Gestão de Pixels & Scripts</h2>
           </div>
-
           <div className="space-y-6">
-            <div>
-              <label className="text-foreground text-sm font-medium mb-2 block">Meta Pixel (Facebook)</label>
-              <textarea
-                value={metaPixel}
-                onChange={(e) => setMetaPixel(e.target.value)}
-                placeholder="Cole o script do Meta Pixel aqui..."
-                className="w-full bg-secondary border border-border rounded-lg px-4 py-3 text-foreground text-xs font-mono h-24 focus:outline-none focus:border-primary resize-none"
-              />
-            </div>
-            <div>
-              <label className="text-foreground text-sm font-medium mb-2 block">Google Tag Manager</label>
-              <textarea
-                value={gtmScript}
-                onChange={(e) => setGtmScript(e.target.value)}
-                placeholder="Cole o script do GTM aqui..."
-                className="w-full bg-secondary border border-border rounded-lg px-4 py-3 text-foreground text-xs font-mono h-24 focus:outline-none focus:border-primary resize-none"
-              />
-            </div>
-            <div>
-              <label className="text-foreground text-sm font-medium mb-2 block">Scripts Customizados (Head)</label>
-              <textarea
-                value={customHead}
-                onChange={(e) => setCustomHead(e.target.value)}
-                placeholder="Scripts para injetar no <head>..."
-                className="w-full bg-secondary border border-border rounded-lg px-4 py-3 text-foreground text-xs font-mono h-24 focus:outline-none focus:border-primary resize-none"
-              />
-            </div>
-            <div>
-              <label className="text-foreground text-sm font-medium mb-2 block">Scripts Customizados (Body)</label>
-              <textarea
-                value={customBody}
-                onChange={(e) => setCustomBody(e.target.value)}
-                placeholder="Scripts para injetar no <body>..."
-                className="w-full bg-secondary border border-border rounded-lg px-4 py-3 text-foreground text-xs font-mono h-24 focus:outline-none focus:border-primary resize-none"
-              />
-            </div>
+            {[
+              { label: "Meta Pixel (Facebook)", value: metaPixel, set: setMetaPixel, ph: "Cole o script do Meta Pixel aqui..." },
+              { label: "Google Tag Manager", value: gtmScript, set: setGtmScript, ph: "Cole o script do GTM aqui..." },
+              { label: "Scripts Customizados (Head)", value: customHead, set: setCustomHead, ph: "Scripts para injetar no <head>..." },
+              { label: "Scripts Customizados (Body)", value: customBody, set: setCustomBody, ph: "Scripts para injetar no <body>..." },
+            ].map((s) => (
+              <div key={s.label}>
+                <label className="text-foreground text-sm font-medium mb-2 block">{s.label}</label>
+                <textarea
+                  value={s.value}
+                  onChange={(e) => s.set(e.target.value)}
+                  placeholder={s.ph}
+                  className="w-full bg-secondary border border-border rounded-lg px-4 py-3 text-foreground text-xs font-mono h-24 focus:outline-none focus:border-primary resize-none"
+                />
+              </div>
+            ))}
             <button
               onClick={handleSaveScripts}
               disabled={saving}
