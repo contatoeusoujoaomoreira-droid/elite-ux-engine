@@ -4,6 +4,8 @@ import SocialProof from "@/components/landing/SocialProof";
 import ForWhoSection from "@/components/landing/ForWhoSection";
 import GallerySection from "@/components/landing/GallerySection";
 import DifferentialsSection from "@/components/landing/DifferentialsSection";
+import GamifiedSection from "@/components/landing/GamifiedSection";
+import WhyChooseSection from "@/components/landing/WhyChooseSection";
 import CalculatorSection from "@/components/landing/CalculatorSection";
 import PlansSection from "@/components/landing/PlansSection";
 import FAQSection from "@/components/landing/FAQSection";
@@ -13,9 +15,9 @@ import { useScriptInjector } from "@/hooks/useScriptInjector";
 import { useEventForwarder } from "@/hooks/useEventForwarder";
 
 const Index = () => {
-  useTracker();
-  useScriptInjector();
   useEventForwarder();
+  useScriptInjector();
+  useTracker();
 
   const handlePlanClick = (planName: string) => {
     trackPlanClick(planName);
@@ -29,6 +31,8 @@ const Index = () => {
       </div>
       <SocialProof />
       <ForWhoSection />
+      <GamifiedSection />
+      <WhyChooseSection />
       <GallerySection />
       <DifferentialsSection />
       <CalculatorSection />
