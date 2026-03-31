@@ -35,8 +35,8 @@ export function useTracker() {
       if (error) console.error("Pageview tracking error:", error);
     });
 
-    // Forward PageView event to Meta Pixel and Google Analytics
-    forwardEventToPixels({
+    // Forward PageView event — wait for scripts to be ready
+    const eventData = {
       eventName: "PageView",
       eventData: {
         page_path: window.location.pathname,
@@ -46,21 +46,28 @@ export function useTracker() {
         utm_medium: params.get("utm_medium") || null,
         utm_campaign: params.get("utm_campaign") || null,
       },
-    });
+    };
+
+    // Try immediately, then also listen for scripts-ready
+    const tryForward = () => forwardEventToPixels(eventData);
+    tryForward();
+    window.addEventListener("scripts-ready", tryForward, { once: true });
+
+    return () => {
+      window.removeEventListener("scripts-ready", tryForward);
+    };
   }, []);
 }
 
 export async function trackPlanClick(planName: string) {
   const sessionId = sessionStorage.getItem("ellite_sid") || "unknown";
   
-  // Track in Supabase
   const { error } = await supabase.from("plan_clicks").insert({
     plan_name: planName,
     session_id: sessionId,
   });
   if (error) console.error("Plan click tracking error:", error);
 
-  // Forward event to Meta Pixel and Google Analytics
   forwardEventToPixels({
     eventName: "Lead",
     eventData: {

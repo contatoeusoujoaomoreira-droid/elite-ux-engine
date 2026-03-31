@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Calendar, ChevronDown } from "lucide-react";
+import { Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
@@ -20,32 +20,31 @@ const DateRangeFilter = ({ onRangeChange }: DateRangeFilterProps) => {
 
   const getDateRange = (type: DateRangeType) => {
     const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    let start = today;
-    let end = new Date(today);
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
 
     switch (type) {
-      case "today":
-        start = today;
-        end = new Date(today);
-        break;
-      case "yesterday":
-        start = new Date(today.setDate(today.getDate() - 1));
-        end = new Date(start);
-        break;
-      case "week":
-        start = new Date(today.setDate(today.getDate() - today.getDay()));
-        end = new Date();
-        break;
-      case "month":
-        start = new Date(now.getFullYear(), now.getMonth(), 1);
-        end = new Date();
-        break;
+      case "today": {
+        return { start: todayStart, end: now };
+      }
+      case "yesterday": {
+        const yesterdayStart = new Date(todayStart);
+        yesterdayStart.setDate(yesterdayStart.getDate() - 1);
+        const yesterdayEnd = new Date(todayStart);
+        yesterdayEnd.setMilliseconds(-1); // 23:59:59.999 of yesterday
+        return { start: yesterdayStart, end: yesterdayEnd };
+      }
+      case "week": {
+        const weekStart = new Date(todayStart);
+        weekStart.setDate(weekStart.getDate() - 7);
+        return { start: weekStart, end: now };
+      }
+      case "month": {
+        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+        return { start: monthStart, end: now };
+      }
       case "custom":
         return { start: startDate, end: endDate };
     }
-
-    return { start, end };
   };
 
   const handleRangeChange = (type: DateRangeType) => {
@@ -63,17 +62,6 @@ const DateRangeFilter = ({ onRangeChange }: DateRangeFilterProps) => {
 
   const handleCustomDateChange = () => {
     onRangeChange("custom", startDate, endDate);
-  };
-
-  const getRangeLabel = () => {
-    const labels: Record<DateRangeType, string> = {
-      today: "Hoje",
-      yesterday: "Ontem",
-      week: "Esta Semana",
-      month: "Este Mês",
-      custom: "Personalizado",
-    };
-    return labels[rangeType];
   };
 
   return (
