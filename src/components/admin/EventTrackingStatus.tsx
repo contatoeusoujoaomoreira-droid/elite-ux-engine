@@ -27,7 +27,12 @@ const EventTrackingStatus = () => {
     // Check again after a delay (scripts might load asynchronously)
     const timer = setTimeout(checkTracking, 2000);
 
-    return () => clearTimeout(timer);
+    window.addEventListener("scripts-ready", checkTracking);
+
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("scripts-ready", checkTracking);
+    };
   }, []);
 
   const StatusItem = ({

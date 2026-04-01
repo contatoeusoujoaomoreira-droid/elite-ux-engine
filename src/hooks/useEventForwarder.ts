@@ -8,35 +8,37 @@ interface EventData {
 }
 
 const eventQueue: EventData[] = [];
+let scriptsReadyGlobal = false;
 
 export function useEventForwarder() {
-  const scriptsReady = useRef(false);
-
   useEffect(() => {
     const handleScriptsReady = () => {
-      scriptsReady.current = true;
+      scriptsReadyGlobal = true;
       processQueue();
     };
 
     window.addEventListener("scripts-ready", handleScriptsReady);
 
+    // If scripts are already loaded (e.g. on re-mount)
+    if ((window as any).fbq || (window as any).gtag || (window as any).dataLayer) {
+      scriptsReadyGlobal = true;
+      processQueue();
+    }
+
     // Expose global function for event forwarding
     (window as any).forwardEvent = (event: EventData) => {
-      if (scriptsReady.current) {
-        forwardEventToPixels(event);
-      } else {
-        eventQueue.push(event);
-      }
+      forwardEventToPixels(event);
     };
 
     return () => {
       window.removeEventListener("scripts-ready", handleScriptsReady);
-      delete (window as any).forwardEvent;
+      // We don't delete forwardEvent to allow events from other parts of the app
     };
   }, []);
 }
 
 function processQueue() {
+  console.log(`[EventForwarder] Processing queue of ${eventQueue.length} events`);
   while (eventQueue.length > 0) {
     const event = eventQueue.shift();
     if (event) forwardEventToPixels(event);
@@ -46,8 +48,19 @@ function processQueue() {
 export function forwardEventToPixels(event: EventData) {
   const { eventName, eventData = {}, value, currency } = event;
 
+  const hasMeta = typeof window !== "undefined" && (window as any).fbq;
+  const hasGA = typeof window !== "undefined" && (window as any).gtag;
+  const hasGTM = typeof window !== "undefined" && (window as any).dataLayer;
+
+  // If no pixel is ready yet, queue the event
+  if (!hasMeta && !hasGA && !hasGTM && !scriptsReadyGlobal) {
+    console.log(`[EventForwarder] Queuing event: ${eventName}`, eventData);
+    eventQueue.push(event);
+    return;
+  }
+
   // Forward to Meta Pixel (Facebook)
-  if (typeof window !== "undefined" && (window as any).fbq) {
+  if (hasMeta) {
     try {
       switch (eventName) {
         case "PageView":
@@ -69,7 +82,7 @@ export function forwardEventToPixels(event: EventData) {
   }
 
   // Forward to Google Analytics / Google Tag Manager
-  if (typeof window !== "undefined" && (window as any).gtag) {
+  if (hasGA) {
     try {
       const gaEventData: Record<string, any> = { ...eventData };
       if (value) gaEventData.value = value;
@@ -82,7 +95,7 @@ export function forwardEventToPixels(event: EventData) {
   }
 
   // Forward to Google Tag Manager (dataLayer)
-  if (typeof window !== "undefined" && (window as any).dataLayer) {
+  if (hasGTM) {
     try {
       (window as any).dataLayer.push({
         event: eventName,

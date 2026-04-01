@@ -21,6 +21,7 @@ export function useTracker() {
     const params = new URLSearchParams(window.location.search);
     const sessionId = getSessionId();
 
+    console.log("[Tracker] Recording pageview in Supabase...");
     supabase.from("pageviews").insert({
       session_id: sessionId,
       page_path: window.location.pathname,
@@ -32,10 +33,10 @@ export function useTracker() {
       utm_content: params.get("utm_content") || null,
       user_agent: navigator.userAgent,
     }).then(({ error }) => {
-      if (error) console.error("Pageview tracking error:", error);
+      if (error) console.error("[Tracker] Pageview tracking error:", error);
     });
 
-    // Forward PageView event — wait for scripts to be ready
+    // Forward PageView event
     const eventData = {
       eventName: "PageView",
       eventData: {
@@ -48,14 +49,8 @@ export function useTracker() {
       },
     };
 
-    // Try immediately, then also listen for scripts-ready
-    const tryForward = () => forwardEventToPixels(eventData);
-    tryForward();
-    window.addEventListener("scripts-ready", tryForward, { once: true });
-
-    return () => {
-      window.removeEventListener("scripts-ready", tryForward);
-    };
+    // This will now be queued if scripts are not ready
+    forwardEventToPixels(eventData);
   }, []);
 }
 
@@ -66,7 +61,7 @@ export async function trackPlanClick(planName: string) {
     plan_name: planName,
     session_id: sessionId,
   });
-  if (error) console.error("Plan click tracking error:", error);
+  if (error) console.error("[Tracker] Plan click tracking error:", error);
 
   forwardEventToPixels({
     eventName: "Lead",
