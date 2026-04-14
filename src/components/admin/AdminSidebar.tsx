@@ -1,4 +1,4 @@
-import { BarChart3, Settings, Users, Code2 } from "lucide-react";
+import { BarChart3, Settings, Activity, LogOut } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -14,14 +14,21 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
-export type AdminTab = "dashboard" | "settings";
+export type AdminTab = "dashboard" | "settings" | "pixel-health";
 
 interface AdminSidebarProps {
   activeTab: AdminTab;
   onTabChange: (tab: AdminTab) => void;
+  onLogout: () => void;
 }
 
-const AdminSidebar = ({ activeTab, onTabChange }: AdminSidebarProps) => {
+const menuItems = [
+  { id: "dashboard" as AdminTab, label: "Dashboard", icon: BarChart3 },
+  { id: "pixel-health" as AdminTab, label: "Diagnóstico", icon: Activity },
+  { id: "settings" as AdminTab, label: "Configurações", icon: Settings },
+];
+
+const AdminSidebar = ({ activeTab, onTabChange, onLogout }: AdminSidebarProps) => {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
 
@@ -29,13 +36,13 @@ const AdminSidebar = ({ activeTab, onTabChange }: AdminSidebarProps) => {
     <Sidebar collapsible="icon" variant="sidebar">
       <SidebarHeader>
         <div className="flex items-center gap-2 px-2 py-2">
-          <div className="h-8 w-8 rounded-md bg-primary/20 flex items-center justify-center text-primary font-bold text-sm">
+          <div className="h-8 w-8 rounded-md bg-primary/20 flex items-center justify-center text-primary font-bold text-sm shrink-0">
             E
           </div>
           {!collapsed && (
             <div className="min-w-0">
               <p className="text-sm font-semibold text-foreground leading-tight">ELLITE COWORKING</p>
-              <p className="text-[11px] text-muted-foreground">Painel Administrativo</p>
+              <p className="text-[11px] text-muted-foreground">Painel Admin</p>
             </div>
           )}
         </div>
@@ -43,37 +50,31 @@ const AdminSidebar = ({ activeTab, onTabChange }: AdminSidebarProps) => {
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Navegação</SidebarGroupLabel>
+          <SidebarGroupLabel>Menu</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton isActive={activeTab === "dashboard"} onClick={() => onTabChange("dashboard")}>
-                  <BarChart3 className="h-4 w-4" />
-                  <span>Dashboard</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton isActive={activeTab === "settings"} onClick={() => onTabChange("settings")}>
-                  <Settings className="h-4 w-4" />
-                  <span>Configurações</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+              {menuItems.map((item) => (
+                <SidebarMenuItem key={item.id}>
+                  <SidebarMenuButton isActive={activeTab === item.id} onClick={() => onTabChange(item.id)}>
+                    <item.icon className="h-4 w-4" />
+                    <span>{item.label}</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
 
       <SidebarFooter>
-        <div className="px-2 pb-2 space-y-1 text-xs text-muted-foreground">
-          <div className="flex items-center gap-2">
-            <Users className="h-3.5 w-3.5" />
-            {!collapsed && <span>Gestão de usuários</span>}
-          </div>
-          <div className="flex items-center gap-2">
-            <Code2 className="h-3.5 w-3.5" />
-            {!collapsed && <span>Rastreio de pixel</span>}
-          </div>
-        </div>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton onClick={onLogout} className="text-muted-foreground hover:text-destructive">
+              <LogOut className="h-4 w-4" />
+              <span>Sair</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

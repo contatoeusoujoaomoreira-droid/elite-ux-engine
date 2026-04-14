@@ -1,20 +1,24 @@
 import { useState, useEffect } from "react";
-import { LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import AdminLogin from "@/components/admin/AdminLogin";
-import KPICards from "@/components/admin/KPICards";
-import PageviewsChart from "@/components/admin/PageviewsChart";
-import TrafficTable from "@/components/admin/TrafficTable";
-import ClickHeatmap from "@/components/admin/ClickHeatmap";
-import PixelManager from "@/components/admin/PixelManager";
+import AdminSidebar, { AdminTab } from "@/components/admin/AdminSidebar";
 import DateRangeFilter, { DateRangeType } from "@/components/admin/DateRangeFilter";
-import UserManagement from "@/components/admin/UserManagement";
 import AnalyticsOverview from "@/components/admin/AnalyticsOverview";
-import EventTrackingStatus from "@/components/admin/EventTrackingStatus";
+import PageviewsChart from "@/components/admin/PageviewsChart";
+import ConversionFunnel from "@/components/admin/ConversionFunnel";
+import PlanPerformanceChart from "@/components/admin/PlanPerformanceChart";
+import UTMSourceTable from "@/components/admin/UTMSourceTable";
+import PixelHealthMonitor from "@/components/admin/PixelHealthMonitor";
+import PixelManager from "@/components/admin/PixelManager";
+import UserManagement from "@/components/admin/UserManagement";
+import ExportButton from "@/components/admin/ExportButton";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { Menu } from "lucide-react";
 
 const AdminPage = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<AdminTab>("dashboard");
   const [dateRangeType, setDateRangeType] = useState<DateRangeType>("month");
   const [startDate, setStartDate] = useState<Date>(new Date(new Date().setDate(new Date().getDate() - 30)));
   const [endDate, setEndDate] = useState<Date>(new Date());
@@ -41,24 +45,19 @@ const AdminPage = () => {
     if (!isAuthenticated) return;
     loadAnalytics();
 
-    // Realtime subscription for instant updates
-    const pageviewSubscription = supabase
+    const pageviewSub = supabase
       .channel("pageviews-realtime")
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "pageviews" }, () => {
-        loadAnalytics();
-      })
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "pageviews" }, () => loadAnalytics())
       .subscribe();
 
-    const clickSubscription = supabase
+    const clickSub = supabase
       .channel("clicks-realtime")
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "plan_clicks" }, () => {
-        loadAnalytics();
-      })
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "plan_clicks" }, () => loadAnalytics())
       .subscribe();
 
     return () => {
-      supabase.removeChannel(pageviewSubscription);
-      supabase.removeChannel(clickSubscription);
+      supabase.removeChannel(pageviewSub);
+      supabase.removeChannel(clickSub);
     };
   }, [isAuthenticated, startDate, endDate]);
 
@@ -66,7 +65,6 @@ const AdminPage = () => {
     const startISO = startDate.toISOString();
     const endISO = endDate.toISOString();
 
-    // Pageviews count
     const { count: pvCount } = await supabase
       .from("pageviews")
       .select("*", { count: "exact", head: true })
@@ -74,27 +72,25 @@ const AdminPage = () => {
       .lte("created_at", endISO);
     setTotalPageviews(pvCount || 0);
 
-    // Unique visitors
     const { data: pvData } = await supabase
       .from("pageviews")
-      .select("session_id, created_at")
+      .select("session_id, created_at, utm_source, utm_campaign, utm_medium, referrer")
       .gte("created_at", startISO)
       .lte("created_at", endISO);
-    const unique = new Set(pvData?.map(r => r.session_id).filter(Boolean));
+    const unique = new Set(pvData?.map((r) => r.session_id).filter(Boolean));
     setUniqueVisitors(unique.size);
 
-    // Daily pageviews
     const dailyMap: Record<string, number> = {};
-    pvData?.forEach(r => {
+    pvData?.forEach((r) => {
       const day = r.created_at.substring(0, 10);
       dailyMap[day] = (dailyMap[day] || 0) + 1;
     });
-    const sorted = Object.entries(dailyMap)
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([date, views]) => ({ date, views }));
-    setDailyPageviews(sorted);
+    setDailyPageviews(
+      Object.entries(dailyMap)
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([date, views]) => ({ date, views }))
+    );
 
-    // Plan clicks
     const { data: clicks } = await supabase
       .from("plan_clicks")
       .select("plan_name")
@@ -102,26 +98,25 @@ const AdminPage = () => {
       .lte("created_at", endISO);
     const clickMap: Record<string, number> = {};
     let total = 0;
-    clicks?.forEach(c => {
+    clicks?.forEach((c) => {
       clickMap[c.plan_name] = (clickMap[c.plan_name] || 0) + 1;
       total++;
     });
     setPlanClicks(clickMap);
     setTotalPlanClicks(total);
 
-    // Traffic data
-    const { data: traffic } = await supabase
-      .from("pageviews")
-      .select("utm_source, utm_campaign, referrer, page_path")
-      .gte("created_at", startISO)
-      .lte("created_at", endISO)
-      .limit(100);
-    setTrafficData(traffic || []);
+    setTrafficData(pvData || []);
   };
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
     setIsAuthenticated(false);
+  };
+
+  const handleDateRangeChange = (type: DateRangeType, start: Date, end: Date) => {
+    setDateRangeType(type);
+    setStartDate(start);
+    setEndDate(end);
   };
 
   if (loading) {
@@ -138,38 +133,82 @@ const AdminPage = () => {
 
   const conversionRate = totalPageviews > 0 ? ((totalPlanClicks / totalPageviews) * 100).toFixed(1) : "0";
 
-  const handleDateRangeChange = (type: DateRangeType, start: Date, end: Date) => {
-    setDateRangeType(type);
-    setStartDate(start);
-    setEndDate(end);
-  };
-
   return (
-    <div className="min-h-screen bg-background p-4 md:p-8">
-      <div className="max-w-6xl mx-auto">
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="font-serif text-2xl font-bold text-foreground">
-            <span className="text-gradient-gold">Ellite</span> Admin
-          </h1>
-          <div className="flex items-center gap-4">
-            <a href="/" className="text-muted-foreground text-sm hover:text-primary transition">← Voltar ao Site</a>
-            <button onClick={handleLogout} className="flex items-center gap-1.5 text-muted-foreground text-sm hover:text-destructive transition">
-              <LogOut className="w-4 h-4" /> Sair
-            </button>
-          </div>
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full bg-background">
+        <AdminSidebar activeTab={activeTab} onTabChange={setActiveTab} onLogout={handleLogout} />
+
+        <div className="flex-1 flex flex-col min-w-0">
+          {/* Header */}
+          <header className="h-14 flex items-center gap-4 border-b border-border/50 px-4 md:px-6 shrink-0">
+            <SidebarTrigger>
+              <Menu className="w-5 h-5" />
+            </SidebarTrigger>
+            <div className="flex items-center gap-2">
+              <h1 className="font-serif text-lg font-bold text-foreground">
+                <span className="text-primary">Ellite</span> Admin
+              </h1>
+            </div>
+            <div className="ml-auto flex items-center gap-3">
+              <a href="/" className="text-muted-foreground text-xs hover:text-primary transition">← Voltar ao Site</a>
+            </div>
+          </header>
+
+          {/* Content */}
+          <main className="flex-1 overflow-y-auto p-4 md:p-6">
+            {activeTab === "dashboard" && (
+              <div className="max-w-7xl mx-auto space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <DateRangeFilter onRangeChange={handleDateRangeChange} />
+                  <ExportButton
+                    totalPageviews={totalPageviews}
+                    uniqueVisitors={uniqueVisitors}
+                    conversionRate={conversionRate}
+                    planClicks={planClicks}
+                    trafficData={trafficData}
+                    dailyPageviews={dailyPageviews}
+                    startDate={startDate}
+                    endDate={endDate}
+                  />
+                </div>
+
+                <AnalyticsOverview
+                  totalPageviews={totalPageviews}
+                  uniqueVisitors={uniqueVisitors}
+                  conversionRate={conversionRate}
+                  trafficData={trafficData}
+                />
+
+                <div className="grid lg:grid-cols-2 gap-6">
+                  <ConversionFunnel
+                    pageviews={totalPageviews}
+                    planClicks={totalPlanClicks}
+                    waIntents={totalPlanClicks}
+                  />
+                  <PlanPerformanceChart planClicks={planClicks} />
+                </div>
+
+                <PageviewsChart dailyPageviews={dailyPageviews} />
+                <UTMSourceTable trafficData={trafficData} />
+              </div>
+            )}
+
+            {activeTab === "pixel-health" && (
+              <div className="max-w-4xl mx-auto">
+                <PixelHealthMonitor />
+              </div>
+            )}
+
+            {activeTab === "settings" && (
+              <div className="max-w-4xl mx-auto space-y-8">
+                <PixelManager />
+                <UserManagement />
+              </div>
+            )}
+          </main>
         </div>
-
-        <DateRangeFilter onRangeChange={handleDateRangeChange} />
-
-        <EventTrackingStatus />
-        <AnalyticsOverview totalPageviews={totalPageviews} uniqueVisitors={uniqueVisitors} conversionRate={conversionRate} trafficData={trafficData} />
-        <PageviewsChart dailyPageviews={dailyPageviews} />
-        <TrafficTable trafficData={trafficData} />
-        <ClickHeatmap planClicks={planClicks} />
-        <UserManagement />
-        <PixelManager />
       </div>
-    </div>
+    </SidebarProvider>
   );
 };
 
