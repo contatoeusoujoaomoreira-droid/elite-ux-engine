@@ -21,7 +21,6 @@ export function useTracker() {
     const params = new URLSearchParams(window.location.search);
     const sessionId = getSessionId();
 
-    console.log("[Tracker] Recording pageview in Supabase...");
     supabase.from("pageviews").insert({
       session_id: sessionId,
       page_path: window.location.pathname,
@@ -34,10 +33,10 @@ export function useTracker() {
       user_agent: navigator.userAgent,
     }).then(({ error }) => {
       if (error) console.error("[Tracker] Pageview tracking error:", error);
+      else console.log("[Tracker] Pageview recorded");
     });
 
-    // Forward PageView event
-    const eventData = {
+    forwardEventToPixels({
       eventName: "PageView",
       eventData: {
         page_path: window.location.pathname,
@@ -47,16 +46,16 @@ export function useTracker() {
         utm_medium: params.get("utm_medium") || null,
         utm_campaign: params.get("utm_campaign") || null,
       },
-    };
-
-    // This will now be queued if scripts are not ready
-    forwardEventToPixels(eventData);
+    });
   }, []);
 }
 
 export async function trackPlanClick(planName: string) {
   const sessionId = sessionStorage.getItem("ellite_sid") || "unknown";
-  
+  const timestamp = new Date().toISOString();
+
+  console.log(`[Tracker] WA_INTENT: ${planName} at ${timestamp}`);
+
   const { error } = await supabase.from("plan_clicks").insert({
     plan_name: planName,
     session_id: sessionId,
@@ -69,7 +68,17 @@ export async function trackPlanClick(planName: string) {
       content_name: `Plan: ${planName}`,
       content_type: "product",
       content_id: planName,
-      source: "plan_click",
+      source: "wa_intent",
+      timestamp,
+    },
+  });
+
+  // Also fire Contact event for Meta
+  forwardEventToPixels({
+    eventName: "Contact",
+    eventData: {
+      content_name: `WhatsApp: ${planName}`,
+      method: "whatsapp",
     },
   });
 }
