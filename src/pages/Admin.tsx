@@ -12,6 +12,7 @@ import PixelHealthMonitor from "@/components/admin/PixelHealthMonitor";
 import PixelManager from "@/components/admin/PixelManager";
 import UserManagement from "@/components/admin/UserManagement";
 import ExportButton from "@/components/admin/ExportButton";
+import CRMModule from "@/components/crm/CRMModule";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Menu } from "lucide-react";
 
@@ -196,6 +197,12 @@ const AdminPage = () => {
             {activeTab === "pixel-health" && (
               <div className="max-w-4xl mx-auto">
                 <PixelHealthMonitor />
+              </div>
+            )}
+
+            {activeTab === "crm" && (
+              <div className="w-full">
+                <CRMModule />
               </div>
             )}
 
