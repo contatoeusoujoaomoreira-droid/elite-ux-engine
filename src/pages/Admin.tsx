@@ -199,6 +199,12 @@ const AdminPage = () => {
               </div>
             )}
 
+            {activeTab === "crm" && (
+              <div className="w-full">
+                <CRMModule />
+              </div>
+            )}
+
             {activeTab === "settings" && (
               <div className="max-w-4xl mx-auto space-y-8">
                 <PixelManager />
