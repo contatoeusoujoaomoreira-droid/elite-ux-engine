@@ -13,6 +13,7 @@ import PixelManager from "@/components/admin/PixelManager";
 import UserManagement from "@/components/admin/UserManagement";
 import ExportButton from "@/components/admin/ExportButton";
 import CRMModule from "@/components/crm/CRMModule";
+import FormsModule from "@/components/forms/FormsModule";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Menu } from "lucide-react";
 
@@ -203,6 +204,12 @@ const AdminPage = () => {
             {activeTab === "crm" && (
               <div className="w-full">
                 <CRMModule />
+              </div>
+            )}
+
+            {activeTab === "forms" && (
+              <div className="w-full">
+                <FormsModule />
               </div>
             )}
 

@@ -305,6 +305,170 @@ export type Database = {
           },
         ]
       }
+      form_fields: {
+        Row: {
+          conditional_logic: Json | null
+          created_at: string
+          field_mapping: string | null
+          form_id: string
+          id: string
+          label: string
+          options: Json | null
+          placeholder: string | null
+          position: number
+          required: boolean
+          type: string
+          validation: Json | null
+        }
+        Insert: {
+          conditional_logic?: Json | null
+          created_at?: string
+          field_mapping?: string | null
+          form_id: string
+          id?: string
+          label: string
+          options?: Json | null
+          placeholder?: string | null
+          position?: number
+          required?: boolean
+          type?: string
+          validation?: Json | null
+        }
+        Update: {
+          conditional_logic?: Json | null
+          created_at?: string
+          field_mapping?: string | null
+          form_id?: string
+          id?: string
+          label?: string
+          options?: Json | null
+          placeholder?: string | null
+          position?: number
+          required?: boolean
+          type?: string
+          validation?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "form_fields_form_id_fkey"
+            columns: ["form_id"]
+            isOneToOne: false
+            referencedRelation: "forms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      form_submissions: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          data: Json
+          dropped_at_field: string | null
+          form_id: string
+          id: string
+          lead_id: string | null
+          metadata: Json
+          started_at: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          data?: Json
+          dropped_at_field?: string | null
+          form_id: string
+          id?: string
+          lead_id?: string | null
+          metadata?: Json
+          started_at?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          data?: Json
+          dropped_at_field?: string | null
+          form_id?: string
+          id?: string
+          lead_id?: string | null
+          metadata?: Json
+          started_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "form_submissions_form_id_fkey"
+            columns: ["form_id"]
+            isOneToOne: false
+            referencedRelation: "forms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "form_submissions_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "crm_leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      forms: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          pipeline_id: string | null
+          settings: Json
+          slug: string
+          stage_id: string | null
+          status: string
+          theme_config: Json
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          pipeline_id?: string | null
+          settings?: Json
+          slug: string
+          stage_id?: string | null
+          status?: string
+          theme_config?: Json
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          pipeline_id?: string | null
+          settings?: Json
+          slug?: string
+          stage_id?: string | null
+          status?: string
+          theme_config?: Json
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "forms_pipeline_id_fkey"
+            columns: ["pipeline_id"]
+            isOneToOne: false
+            referencedRelation: "crm_pipelines"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "forms_stage_id_fkey"
+            columns: ["stage_id"]
+            isOneToOne: false
+            referencedRelation: "crm_stages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pageviews: {
         Row: {
           created_at: string
