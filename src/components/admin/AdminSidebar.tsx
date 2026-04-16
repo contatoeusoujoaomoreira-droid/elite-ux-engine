@@ -1,4 +1,4 @@
-import { BarChart3, Settings, Activity, LogOut, Users } from "lucide-react";
+import { BarChart3, Settings, Activity, LogOut, Users, FileText } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -14,7 +14,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
-export type AdminTab = "dashboard" | "settings" | "pixel-health" | "crm";
+export type AdminTab = "dashboard" | "settings" | "pixel-health" | "crm" | "forms";
 
 interface AdminSidebarProps {
   activeTab: AdminTab;
@@ -25,6 +25,7 @@ interface AdminSidebarProps {
 const menuItems = [
   { id: "dashboard" as AdminTab, label: "Dashboard", icon: BarChart3 },
   { id: "crm" as AdminTab, label: "CRM", icon: Users },
+  { id: "forms" as AdminTab, label: "Forms", icon: FileText },
   { id: "pixel-health" as AdminTab, label: "Diagnóstico", icon: Activity },
   { id: "settings" as AdminTab, label: "Configurações", icon: Settings },
 ];
