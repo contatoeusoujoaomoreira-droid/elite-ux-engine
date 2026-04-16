@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { fetchPublicForm, submitPublicForm, FormRecord, FormField } from "@/hooks/useForms";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -106,7 +107,6 @@ const FormPublic = () => {
   useEffect(() => {
     return () => {
       if (!submitted && form && currentField) {
-        const { supabase } = require("@/integrations/supabase/client");
         supabase.from("form_submissions").insert({
           form_id: form.id,
           data: answers,
