@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Clock4, ShieldCheck, MapPinned, Sparkles, Wallet, Coffee } from "lucide-react";
+import { Clock4, Sparkles, Wallet, Coffee } from "lucide-react";
 
 const objections = [
   {
