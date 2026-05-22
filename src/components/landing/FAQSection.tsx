@@ -2,12 +2,12 @@ import { motion } from "framer-motion";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 const faqs = [
-  { q: "Preciso assinar contrato longo?", a: "Não! Oferecemos planos por hora, diária e mensal. Sem fidelidade, sem burocracia." },
-  { q: "Posso usar o endereço comercial?", a: "Sim! Nos planos Diária e Mensal você pode utilizar o endereço da Ellite como sede da sua empresa." },
-  { q: "A sala é privativa?", a: "Sim, todas as nossas salas são privativas, com porta, chave e total privacidade para suas reuniões e atendimentos." },
+  { q: "Preciso assinar contrato longo?", a: "Não! Você pode usar por hora, diária ou mensal — sem fidelidade, sem burocracia. Ideal para quem está de passagem ou começando agora." },
+  { q: "A sala é privativa?", a: "Por enquanto só temos as estações de trabalho compartilhadas e a sala de reunião. É um ambiente onde profissionais dividem o espaço com tranquilidade e respeito." },
   { q: "Tem estacionamento?", a: "O prédio conta com estacionamento rotativo. Também estamos próximos do metrô Moema." },
-  { q: "Posso levar clientes?", a: "Claro! O ambiente foi projetado para impressionar seus clientes com sofisticação e profissionalismo." },
-  { q: "Como funciona o café e água?", a: "Café premium em cápsulas e água filtrada disponíveis em todas as salas, sem custo adicional." },
+  { q: "Posso levar clientes?", a: "Sim! Você pode reservar a sala de reunião por hora (R$ 70/pessoa) para atender clientes com privacidade." },
+  { q: "Como funciona o café e água?", a: "Café e água filtrada disponíveis sem custo adicional, durante todo o seu tempo de uso." },
+  { q: "Vocês são um coworking tradicional?", a: "Estamos começando! Hoje operamos um espaço enxuto, com estações compartilhadas e sala de reunião — perfeito pra quem precisa de algumas horas de produtividade em um lugar bem localizado em Moema." },
 ];
 
 const FAQSection = () => {
