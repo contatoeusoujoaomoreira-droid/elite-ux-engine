@@ -13,7 +13,6 @@ const testimonials = [
 
 const kpis = [
   { value: 200, suffix: "+", label: "Profissionais Atendidos" },
-  { value: 3, suffix: "", label: "Salas Premium" },
   { value: 98, suffix: "%", label: "Taxa de Satisfação" },
   { value: 150, suffix: "%", label: "Ganho em Produtividade" },
 ];
@@ -80,7 +79,7 @@ const SocialProof = () => {
 
       {/* KPIs */}
       <div className="container mx-auto px-4 mt-16">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {kpis.map((kpi, i) => (
             <KpiCard key={kpi.label} kpi={kpi} delay={i * 0.1} />
           ))}

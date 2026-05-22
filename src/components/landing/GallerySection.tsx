@@ -9,12 +9,12 @@ import tour5 from "@/assets/tour-5.jpg";
 import tour6 from "@/assets/tour-6.jpg";
 
 const images = [
-  { src: tour1, label: "Recepção Premium" },
-  { src: tour2, label: "Sala Executiva" },
-  { src: tour3, label: "Estação de Trabalho" },
-  { src: tour4, label: "Sala de Reunião" },
-  { src: tour5, label: "Área Comum" },
-  { src: tour6, label: "Ambiente Lounge" },
+  { src: tour1, label: "Ellite — Seu Espaço de Negócios" },
+  { src: tour2, label: "Sala de Reunião" },
+  { src: tour3, label: "Estações Compartilhadas" },
+  { src: tour4, label: "Ambiente de Trabalho" },
+  { src: tour5, label: "Estações Premium" },
+  { src: tour6, label: "Vista Moema" },
 ];
 
 const GallerySection = () => {

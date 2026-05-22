@@ -89,7 +89,7 @@ const HeroSection = () => {
           transition={{ delay: 1.2, duration: 1 }}
           className="mt-16 flex justify-center gap-8 md:gap-16 text-muted-foreground text-sm"
         >
-          {["Wi-Fi Ultra Rápido", "Ar Condicionado", "Recepção Profissional"].map((item, i) => (
+          {["Wi-Fi Ultra Rápido", "Ar Condicionado", "Flexibilidade de Contratação"].map((item, i) => (
             <motion.span
               key={item}
               initial={{ opacity: 0, y: 10 }}

@@ -6,6 +6,7 @@ import GallerySection from "@/components/landing/GallerySection";
 import DifferentialsSection from "@/components/landing/DifferentialsSection";
 import GamifiedSection from "@/components/landing/GamifiedSection";
 import WhyChooseSection from "@/components/landing/WhyChooseSection";
+import ObjectionsSection from "@/components/landing/ObjectionsSection";
 import CalculatorSection from "@/components/landing/CalculatorSection";
 import PlansSection from "@/components/landing/PlansSection";
 import FAQSection from "@/components/landing/FAQSection";
@@ -36,6 +37,7 @@ const Index = () => {
       <GallerySection />
       <DifferentialsSection />
       <CalculatorSection />
+      <ObjectionsSection />
       <PlansSection onPlanClick={handlePlanClick} />
       <FAQSection />
       <div id="contato">
