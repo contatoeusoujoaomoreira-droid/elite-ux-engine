@@ -4,8 +4,6 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 const faqs = [
   { q: "Preciso assinar contrato longo?", a: "Não! Você pode usar por hora, diária ou mensal — sem fidelidade, sem burocracia. Ideal para quem está de passagem ou começando agora." },
   { q: "A sala é privativa?", a: "Por enquanto só temos as estações de trabalho compartilhadas e a sala de reunião. É um ambiente onde profissionais dividem o espaço com tranquilidade e respeito." },
-  { q: "Tem estacionamento?", a: "O prédio conta com estacionamento rotativo. Também estamos próximos do metrô Moema." },
-  { q: "Posso levar clientes?", a: "Sim! Você pode reservar a sala de reunião por hora (R$ 70/pessoa) para atender clientes com privacidade." },
   { q: "Como funciona o café e água?", a: "Café e água filtrada disponíveis sem custo adicional, durante todo o seu tempo de uso." },
   { q: "Vocês são um coworking tradicional?", a: "Estamos começando! Hoje operamos um espaço enxuto, com estações compartilhadas e sala de reunião — perfeito pra quem precisa de algumas horas de produtividade em um lugar bem localizado em Moema." },
 ];

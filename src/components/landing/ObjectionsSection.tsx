@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Clock4, ShieldCheck, MapPinned, Sparkles, Wallet, Coffee } from "lucide-react";
+import { Clock4, Sparkles, Wallet, Coffee } from "lucide-react";
 
 const objections = [
   {
@@ -11,16 +11,6 @@ const objections = [
     icon: Wallet,
     q: "E se eu não gostar? Tem fidelidade?",
     a: "Zero fidelidade. Você usa por hora e pronto. Sem contrato, sem multa, sem surpresa na fatura.",
-  },
-  {
-    icon: MapPinned,
-    q: "Onde fica? É fácil de chegar?",
-    a: "Estamos em Moema, em uma das regiões mais valorizadas de São Paulo, perto do metrô e com estacionamento rotativo no prédio.",
-  },
-  {
-    icon: ShieldCheck,
-    q: "É seguro? Posso deixar meus equipamentos?",
-    a: "Prédio com portaria, acesso controlado e câmeras. Ambiente respeitoso entre profissionais que compartilham o espaço.",
   },
   {
     icon: Sparkles,
@@ -44,7 +34,7 @@ const ObjectionsSection = () => {
           viewport={{ once: true }}
           className="font-serif text-3xl md:text-5xl font-bold text-center mb-4"
         >
-          Antes de você <span className="text-gradient-gold">entrar em contato</span>
+          O que você precisa saber antes de entrar em <span className="text-gradient-gold">contato</span>
         </motion.h2>
         <motion.p
           initial={{ opacity: 0, y: 20 }}

@@ -23,7 +23,6 @@ const plans = [
     subtitle: "por pessoa · o mais escolhido",
     features: [
       "Sala de reunião para atendimentos",
-      "Ambiente privativo para o grupo",
       "Wi-Fi de alta velocidade",
       "Café e água free",
       "Ideal para reuniões com clientes",
