@@ -10,7 +10,7 @@ const benefits = [
   {
     icon: Shield,
     title: "Autoridade & Credibilidade",
-    description: "Endereço comercial em Moema transmite profissionalismo e confiança para seus clientes.",
+    description: "Ambiente em Moema que transmite profissionalismo e confiança para receber seus contatos.",
   },
   {
     icon: TrendingUp,
