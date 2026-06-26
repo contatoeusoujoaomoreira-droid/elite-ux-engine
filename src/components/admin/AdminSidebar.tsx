@@ -1,4 +1,4 @@
-import { BarChart3, Settings, Activity, LogOut, Users, FileText } from "lucide-react";
+import { BarChart3, Settings, Activity, LogOut, Users, FileText, ShieldCheck } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -13,8 +13,9 @@ import {
   SidebarRail,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { useUserRole } from "@/hooks/useUserRole";
 
-export type AdminTab = "dashboard" | "settings" | "pixel-health" | "crm" | "forms";
+export type AdminTab = "dashboard" | "settings" | "pixel-health" | "crm" | "forms" | "super-admin";
 
 interface AdminSidebarProps {
   activeTab: AdminTab;
@@ -22,7 +23,7 @@ interface AdminSidebarProps {
   onLogout: () => void;
 }
 
-const menuItems = [
+const baseItems = [
   { id: "dashboard" as AdminTab, label: "Dashboard", icon: BarChart3 },
   { id: "crm" as AdminTab, label: "CRM", icon: Users },
   { id: "forms" as AdminTab, label: "Forms", icon: FileText },
