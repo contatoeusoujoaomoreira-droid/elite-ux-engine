@@ -66,13 +66,24 @@ const CRMDashboard = ({ stages, leads, pipelineId }: Props) => {
     // Per-stage funnel data
     const funnelData = stages.map(s => ({
       name: s.name,
-      count: leads.filter(l => l.stage_id === s.id).length,
-      value: leads.filter(l => l.stage_id === s.id).reduce((acc, l) => acc + (l.opportunity_value || 0), 0),
+      count: filteredLeads.filter(l => l.stage_id === s.id).length,
+      value: filteredLeads.filter(l => l.stage_id === s.id).reduce((acc, l) => acc + (l.opportunity_value || 0), 0),
       color: s.color || "#6366f1",
     }));
 
-    return { wonLeads, lostLeads, openLeads, winRate, projectedRevenue, realizedRevenue, mrrWon, onetimeWon, avgCycle, funnelData, totalClosed };
-  }, [stages, leads]);
+    // Source attribution breakdown (uses utm_source / source fallback)
+    const sourceMap: Record<string, number> = {};
+    filteredLeads.forEach((l: any) => {
+      const src = l.utm_source || l.source || "direto";
+      sourceMap[src] = (sourceMap[src] || 0) + 1;
+    });
+    const sourceData = Object.entries(sourceMap)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 8);
+
+    return { wonLeads, lostLeads, openLeads, winRate, projectedRevenue, realizedRevenue, mrrWon, onetimeWon, avgCycle, funnelData, totalClosed, sourceData };
+  }, [stages, filteredLeads]);
 
   const fmt = (v: number) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 }).format(v);
 
@@ -83,6 +94,43 @@ const CRMDashboard = ({ stages, leads, pipelineId }: Props) => {
 
   return (
     <div className="space-y-6">
+      {/* Date range filter */}
+      <div className="flex flex-wrap items-center gap-2">
+        {([
+          { id: "today", label: "Hoje" },
+          { id: "yesterday", label: "Ontem" },
+          { id: "week", label: "Semana" },
+          { id: "month", label: "30 dias" },
+          { id: "all", label: "Tudo" },
+        ] as { id: Range; label: string }[]).map((r) => (
+          <Button
+            key={r.id}
+            size="sm"
+            variant={range === r.id ? "default" : "outline"}
+            onClick={() => setRange(r.id)}
+          >
+            {r.label}
+          </Button>
+        ))}
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button size="sm" variant={range === "custom" ? "default" : "outline"} className="gap-1">
+              <CalendarRange className="w-3.5 h-3.5" />
+              {range === "custom" && customStart && customEnd
+                ? `${customStart.toLocaleDateString("pt-BR")} – ${customEnd.toLocaleDateString("pt-BR")}`
+                : "Personalizado"}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-2" align="start">
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Calendar mode="single" selected={customStart} onSelect={setCustomStart} />
+              <Calendar mode="single" selected={customEnd} onSelect={(d) => { setCustomEnd(d); if (customStart && d) setRange("custom"); }} />
+            </div>
+          </PopoverContent>
+        </Popover>
+        <span className="text-xs text-muted-foreground ml-auto">{filteredLeads.length} leads no período</span>
+      </div>
+
       {/* KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
         <KPICard icon={Target} label="Win Rate" value={`${metrics.winRate.toFixed(1)}%`} sub={`${metrics.wonLeads.length} ganhos`} color="text-green-500" />
