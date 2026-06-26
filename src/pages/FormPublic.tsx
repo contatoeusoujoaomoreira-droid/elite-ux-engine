@@ -75,13 +75,11 @@ const FormPublic = () => {
     if (!form) return;
     setSubmitting(true);
 
-    const params = new URLSearchParams(window.location.search);
+    const { getAttribution } = await import("@/lib/attribution");
+    const attr = getAttribution();
     const metadata = {
-      utm_source: params.get("utm_source"),
-      utm_medium: params.get("utm_medium"),
-      utm_campaign: params.get("utm_campaign"),
+      ...attr,
       user_agent: navigator.userAgent,
-      referrer: document.referrer,
     };
 
     const fieldMappings: Record<string, string> = {};

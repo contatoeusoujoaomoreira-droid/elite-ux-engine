@@ -1,4 +1,4 @@
-import { BarChart3, Settings, Activity, LogOut, Users, FileText } from "lucide-react";
+import { BarChart3, Settings, Activity, LogOut, Users, FileText, ShieldCheck } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -13,8 +13,9 @@ import {
   SidebarRail,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { useUserRole } from "@/hooks/useUserRole";
 
-export type AdminTab = "dashboard" | "settings" | "pixel-health" | "crm" | "forms";
+export type AdminTab = "dashboard" | "settings" | "pixel-health" | "crm" | "forms" | "super-admin";
 
 interface AdminSidebarProps {
   activeTab: AdminTab;
@@ -22,7 +23,7 @@ interface AdminSidebarProps {
   onLogout: () => void;
 }
 
-const menuItems = [
+const baseItems = [
   { id: "dashboard" as AdminTab, label: "Dashboard", icon: BarChart3 },
   { id: "crm" as AdminTab, label: "CRM", icon: Users },
   { id: "forms" as AdminTab, label: "Forms", icon: FileText },
@@ -33,6 +34,10 @@ const menuItems = [
 const AdminSidebar = ({ activeTab, onTabChange, onLogout }: AdminSidebarProps) => {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
+  const { isSuperAdmin } = useUserRole();
+  const menuItems = isSuperAdmin
+    ? [...baseItems, { id: "super-admin" as AdminTab, label: "Super Admin", icon: ShieldCheck }]
+    : baseItems;
 
   return (
     <Sidebar collapsible="icon" variant="sidebar">
