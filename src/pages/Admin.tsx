@@ -11,6 +11,7 @@ import UTMSourceTable from "@/components/admin/UTMSourceTable";
 import PixelHealthMonitor from "@/components/admin/PixelHealthMonitor";
 import PixelManager from "@/components/admin/PixelManager";
 import UserManagement from "@/components/admin/UserManagement";
+import SuperAdminPanel from "@/components/admin/SuperAdminPanel";
 import ExportButton from "@/components/admin/ExportButton";
 import CRMModule from "@/components/crm/CRMModule";
 import FormsModule from "@/components/forms/FormsModule";
@@ -218,6 +219,10 @@ const AdminPage = () => {
                 <PixelManager />
                 <UserManagement />
               </div>
+            )}
+
+            {activeTab === "super-admin" && (
+              <SuperAdminPanel />
             )}
           </main>
         </div>

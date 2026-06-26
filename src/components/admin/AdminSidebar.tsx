@@ -34,6 +34,10 @@ const baseItems = [
 const AdminSidebar = ({ activeTab, onTabChange, onLogout }: AdminSidebarProps) => {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
+  const { isSuperAdmin } = useUserRole();
+  const menuItems = isSuperAdmin
+    ? [...baseItems, { id: "super-admin" as AdminTab, label: "Super Admin", icon: ShieldCheck }]
+    : baseItems;
 
   return (
     <Sidebar collapsible="icon" variant="sidebar">
