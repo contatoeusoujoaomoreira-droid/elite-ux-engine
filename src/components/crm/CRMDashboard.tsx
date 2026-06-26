@@ -191,6 +191,32 @@ const CRMDashboard = ({ stages, leads, pipelineId }: Props) => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Source attribution */}
+      <Card className="bg-card border-border/50">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-medium">Origem dos Leads (Atribuição)</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-[260px]">
+            {metrics.sourceData.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={metrics.sourceData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={11} />
+                  <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} allowDecimals={false} />
+                  <Tooltip contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }} />
+                  <Bar dataKey="count" fill="#FBBF24" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-full flex items-center justify-center text-sm text-muted-foreground">
+                Sem dados de origem ainda. Configure UTMs nas campanhas e formulários para começar a atribuir.
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
