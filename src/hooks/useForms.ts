@@ -195,7 +195,14 @@ export async function submitPublicForm(
       pipeline_id: pipelineId,
       stage_id: stageId,
       name: "Lead via Form",
-      source: "form",
+      source: metadata?.utm_source || "form",
+      utm_source: metadata?.utm_source ?? null,
+      utm_medium: metadata?.utm_medium ?? null,
+      utm_campaign: metadata?.utm_campaign ?? null,
+      utm_term: metadata?.utm_term ?? null,
+      utm_content: metadata?.utm_content ?? null,
+      referrer: metadata?.referrer ?? null,
+      landing_page: metadata?.landing_page ?? null,
     };
     // Map fields
     Object.entries(fieldMappings).forEach(([fieldId, crmField]) => {
