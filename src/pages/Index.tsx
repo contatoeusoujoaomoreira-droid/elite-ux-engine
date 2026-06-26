@@ -14,11 +14,14 @@ import FooterSection from "@/components/landing/FooterSection";
 import { useTracker, trackPlanClick } from "@/hooks/useTracker";
 import { useScriptInjector } from "@/hooks/useScriptInjector";
 import { useEventForwarder } from "@/hooks/useEventForwarder";
+import { useEffect } from "react";
+import { captureAttribution } from "@/lib/attribution";
 
 const Index = () => {
   useEventForwarder();
   useScriptInjector();
   useTracker();
+  useEffect(() => { captureAttribution(); }, []);
 
   const handlePlanClick = (planName: string) => {
     trackPlanClick(planName);
