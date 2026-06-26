@@ -1,8 +1,13 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Stage, Lead } from "@/hooks/useCRM";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import { TrendingUp, DollarSign, Clock, Target, Repeat, Zap } from "lucide-react";
+import { TrendingUp, DollarSign, Clock, Target, Repeat, Zap, CalendarRange } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+
+type Range = "today" | "yesterday" | "week" | "month" | "all" | "custom";
 
 interface Props {
   stages: Stage[];
@@ -10,15 +15,40 @@ interface Props {
   pipelineId: string;
 }
 
+const startOfDay = (d: Date) => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x; };
+const endOfDay = (d: Date) => { const x = new Date(d); x.setHours(23, 59, 59, 999); return x; };
+
 const CRMDashboard = ({ stages, leads, pipelineId }: Props) => {
+  const [range, setRange] = useState<Range>("month");
+  const [customStart, setCustomStart] = useState<Date | undefined>();
+  const [customEnd, setCustomEnd] = useState<Date | undefined>();
+
+  const { start, end } = useMemo(() => {
+    const now = new Date();
+    if (range === "today") return { start: startOfDay(now), end: endOfDay(now) };
+    if (range === "yesterday") { const y = new Date(now); y.setDate(y.getDate() - 1); return { start: startOfDay(y), end: endOfDay(y) }; }
+    if (range === "week") { const s = new Date(now); s.setDate(s.getDate() - s.getDay()); return { start: startOfDay(s), end: endOfDay(now) }; }
+    if (range === "month") { const s = new Date(now); s.setDate(s.getDate() - 30); return { start: startOfDay(s), end: endOfDay(now) }; }
+    if (range === "custom" && customStart && customEnd) return { start: startOfDay(customStart), end: endOfDay(customEnd) };
+    return { start: null as Date | null, end: null as Date | null };
+  }, [range, customStart, customEnd]);
+
+  const filteredLeads = useMemo(() => {
+    if (!start || !end) return leads;
+    return leads.filter((l) => {
+      const t = new Date(l.created_at).getTime();
+      return t >= start.getTime() && t <= end.getTime();
+    });
+  }, [leads, start, end]);
+
   const metrics = useMemo(() => {
     const wonStages = stages.filter(s => s.status_type === "won").map(s => s.id);
     const lostStages = stages.filter(s => s.status_type === "lost").map(s => s.id);
     const openStages = stages.filter(s => s.status_type === "open").map(s => s.id);
 
-    const wonLeads = leads.filter(l => wonStages.includes(l.stage_id));
-    const lostLeads = leads.filter(l => lostStages.includes(l.stage_id));
-    const openLeads = leads.filter(l => openStages.includes(l.stage_id));
+    const wonLeads = filteredLeads.filter(l => wonStages.includes(l.stage_id));
+    const lostLeads = filteredLeads.filter(l => lostStages.includes(l.stage_id));
+    const openLeads = filteredLeads.filter(l => openStages.includes(l.stage_id));
 
     const totalClosed = wonLeads.length + lostLeads.length;
     const winRate = totalClosed > 0 ? (wonLeads.length / totalClosed * 100) : 0;
